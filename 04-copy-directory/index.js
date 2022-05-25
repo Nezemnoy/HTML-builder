@@ -8,6 +8,11 @@ let arr =[];
 try {
 
     (async () =>{
+      const files = await readdir(path.join(__dirname,'/files'), { withFileTypes: true });
+          for (const file of files) {
+             if(file.isFile())  
+             arr.push(file.name)
+          }
 
       async function remDir(){
 
@@ -15,35 +20,45 @@ try {
             if (error) {
             mkdir(path.join(__dirname,'./files-copy'), { recursive: true }, (err) => {
                     if (err) throw err;
+                    else {
+                      for (let i = 0; i<arr.length; i++){
+    
+                        function callback(err) {if (err) throw err;}
+                   
+                       copyFile(path.join(__dirname,`./files/${arr[i]}`), path.join(__dirname,`./files-copy/${arr[i]}`), callback);
+                
+                    }
+    
+                    }
                   });
             } else {
             rm(path.join(__dirname,'./files-copy'), { recursive: true }, (err) => {
-                    if (err)  {
-                      mkdir(path.join(__dirname,'./files-copy'), { recursive: true }, (err) => {
-                      if (err) throw err;
-                }); 
-              }
+                    if (err)  {throw err
+                     
+              } else { mkdir(path.join(__dirname,'./files-copy'), { recursive: true }, (err) => {
+                if (err) throw err;
+
+                else {
+                  for (let i = 0; i<arr.length; i++){
+
+                    function callback(err) {if (err) throw err;}
+               
+                   copyFile(path.join(__dirname,`./files/${arr[i]}`), path.join(__dirname,`./files-copy/${arr[i]}`), callback);
+            
+                }
+
+                }
+          }); }
           });  
                     
         }        
       });
     }
 
-       const res = await remDir();
+    await remDir();
 
-       const files = await readdir(path.join(__dirname,'/files'), { withFileTypes: true });
-          for (const file of files) {
-             if(file.isFile())  
-             arr.push(file.name)
-          }
-         
-        for (let i = 0; i<arr.length; i++){
-
-        function callback(err) {if (err) throw err;}
    
-copyFile(path.join(__dirname,`./files/${arr[i]}`), path.join(__dirname,`./files-copy/${arr[i]}`), callback);
-
-    }
+  
     })();
     
     } catch (err) {
